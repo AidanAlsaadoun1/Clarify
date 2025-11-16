@@ -58,7 +58,7 @@ Clarify is built for anyone who wants to learn more effectively, including:
 
 ---
 
-## 💻 Tech Stack (Example)
+## 💻 Tech Stack
 
 * **Frontend:** React / Next.js
 * **AI Model:** Groq llama and PlayAI models (english & arabic)
