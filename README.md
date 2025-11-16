@@ -1,13 +1,11 @@
 # Clarify
 
 ### Stop just reading. Start understanding.
-
-![Clarify App Preview](image_fe1027.png) 
-*(Note: Replace with the correct path to your thumbnail)*
-
 Feeling overwhelmed by complex texts? Clarify is designed for learners who need focus. Paste any document to instantly break it down into simple summaries, clear key points, and instant definitions—making difficult concepts easy to grasp.
 
 ---
+## Team Members
+Aidan (Me): This was a solo hackathon
 
 ## 🧠 The Problem
 
