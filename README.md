@@ -61,9 +61,9 @@ Clarify is built for anyone who wants to learn more effectively, including:
 ## 💻 Tech Stack (Example)
 
 * **Frontend:** React / Next.js
-* **AI Model:** OpenAI API (GPT-4) / Google Gemini API
-* **Text-to-Speech (TTS):** ElevenLabs API / Google Cloud TTS
+* **AI Model:** Groq llama and PlayAI models (english & arabic)
 * **Styling:** Tailwind CSS
+* **Validation:** zod
 
 ---
 
