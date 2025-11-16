@@ -1,10 +1,13 @@
 # Clarify
 
 ### Stop just reading. Start understanding.
+
 Feeling overwhelmed by complex texts? Clarify is designed for learners who need focus. Paste any document to instantly break it down into simple summaries, clear key points, and instant definitions—making difficult concepts easy to grasp.
 
 ---
+
 ## Team Members
+
 Aidan (Me): This was a solo hackathon
 
 ## 🧠 The Problem
@@ -19,20 +22,20 @@ Traditional text is often dense, overwhelming, and inaccessible. For students, p
 
 ## 🚀 Core Features
 
-* **🤖 AI-Powered Summaries:**
-    Instantly get a concise summary of any text. Understand the main idea in seconds, not hours.
+- **🤖 AI-Powered Summaries:**
+  Instantly get a concise summary of any text. Understand the main idea in seconds, not hours.
 
-* **💡 Key Point Extraction:**
-    Don't miss the important stuff. Clarify pulls out the most critical points and takeaways, acting as a perfect "TL;DR" for any document.
+- **💡 Key Point Extraction:**
+  Don't miss the important stuff. Clarify pulls out the most critical points and takeaways, acting as a perfect "TL;DR" for any document.
 
-* **📚 Instant Definitions:**
-    Click on any complex word or phrase to get an immediate, simple definition in context. No more opening new tabs and breaking your focus!
+- **📚 Instant Definitions:**
+  Click on any complex word or phrase to get an immediate, simple definition in context. No more opening new tabs and breaking your focus!
 
-* **🎧 Natural Read-Aloud:**
-    Listen to your text in a clear, natural-sounding voice. This is perfect for auditory learners, multitasking, or reducing visual strain.
+- **🎧 Natural Read-Aloud:**
+  Listen to your text in a clear, natural-sounding voice. This is perfect for auditory learners, multitasking, or reducing visual strain.
 
-* **🌍 Multi-Language Translation:**
-    Paste text in one language and get a seamless translation. Ideal for ESL/EFL students or for understanding foreign-language sources.
+- **🌍 Multi-Language Translation:**
+  Paste text in one language and get a seamless translation. Ideal for ESL/EFL students or for understanding foreign-language sources.
 
 ---
 
@@ -40,11 +43,11 @@ Traditional text is often dense, overwhelming, and inaccessible. For students, p
 
 Clarify is built for anyone who wants to learn more effectively, including:
 
-* **Students:** Turn dense textbooks and academic articles into simple study guides.
-* **Learners with ADHD or Autism:** Reduce cognitive load and sensory overwhelm with a clean, focused, and interactive format.
-* **Professionals:** Quickly grasp the key points of long reports, emails, and industry briefs.
-* **ESL/EFL Learners:** Improve comprehension by translating and defining (or simplifying) unfamiliar terms.
-* **Curious Minds:** Anyone who loves to learn but hates the frustration of overly complex writing.
+- **Students:** Turn dense textbooks and academic articles into simple study guides.
+- **Learners with ADHD or Autism:** Reduce cognitive load and sensory overwhelm with a clean, focused, and interactive format.
+- **Professionals:** Quickly grasp the key points of long reports, emails, and industry briefs.
+- **ESL/EFL Learners:** Improve comprehension by translating and defining (or simplifying) unfamiliar terms.
+- **Curious Minds:** Anyone who loves to learn but hates the frustration of overly complex writing.
 
 ---
 
@@ -58,10 +61,11 @@ Clarify is built for anyone who wants to learn more effectively, including:
 
 ## 💻 Tech Stack
 
-* **Frontend:** React / Next.js
-* **AI Model:** Groq llama and PlayAI models (english & arabic)
-* **Styling:** Tailwind CSS
-* **Validation:** zod
+- **Dev Platform**: I used Vercels v0 to take a low code approach and would fit my idea within the given time constraints
+- **Frontend:** React / Next.js
+- **AI Model:** Groq llama and PlayAI models (english & arabic)
+- **Styling:** Tailwind CSS
+- **Validation:** zod
 
 ---
 
