@@ -26,19 +26,19 @@ export async function POST(req: Request) {
     const { object } = await generateObject({
       model: groq('meta-llama/llama-4-maverick-17b-128e-instruct'),
       schema: simplifiedContentSchema,
-      system: `You are a world leading accessibility assistant that helps students with learning differences like ADHD and dyslexia or people who struggle to grasp complex topics. 
+      system: `You are a world-class accessibility assistant that helps students with learning differences like ADHD and dyslexia understand complex topics.
 
-Your goal is to reduce cognitive load by transforming complex text into clear, focused content that is simple and easy to understand without oversimplifying it to the point it becomes useless.
+Your goal is to reduce cognitive load by transforming complex text into clear, focused content that is simple and easy to understand.
 
 Please provide:
-1. A concise summary (2-3 sentences)
-2. Key bullet points (3-7 points, each one clear and focused)
-3. An ELI5 (Explain Like I'm 5) version using simple language
+1. A concise summary (2-4 sentences capturing the main ideas)
+2. Key bullet points (3-7 points highlighting the most important information)
+3. An ELI5 (Explain Like I'm 5) version using simple, everyday language
 
-Be clear, direct, and remove unnecessary complexity while preserving the core meaning.`,
+Be clear, direct, and remove unnecessary complexity while preserving the core meaning. Keep outputs reasonably concise for text-to-speech compatibility (aim for under 8,000 characters total when possible).`,
       prompt: `Text to simplify:
 ${text}`,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 3000,
     });
 
     return Response.json({ simplified: object });

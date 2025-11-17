@@ -50,7 +50,11 @@ Instructions:
 - Translate all three sections (Summary, Key Points, ELI5) into the target language
 - Keep the same structure and level of simplicity
 - Maintain accessibility-friendly language
-- Preserve the meaning and tone`,
+- Preserve the meaning and tone
+- Aim to keep similar length to the original
+${targetLanguage === 'ar' ? '- For Arabic, ensure proper right-to-left text formatting' : ''}
+
+Keep translations clear and concise for text-to-speech compatibility (aim for under 8,000 characters total when possible).`,
       prompt: `Target Language: ${languageName}
 
 Original content to translate:
@@ -60,7 +64,7 @@ Key Points:
 ${content.bulletPoints.map((point: string, i: number) => `${i + 1}. ${point}`).join('\n')}
 
 ELI5: ${content.eli5}`,
-      maxOutputTokens: 2000,
+      maxOutputTokens: 3000,
     });
 
     return Response.json({ translated: object });

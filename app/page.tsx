@@ -49,7 +49,7 @@ const LANGUAGES: Language[] = [
   { code: 'ru', name: 'Russian' },
 ];
 
-const MAX_AUDIO_CHARACTERS = 1200;
+const MAX_AUDIO_CHARACTERS = 10000;
 const MIN_TEXT_CHARACTERS = 500;
 
 export default function Home() {
@@ -543,43 +543,70 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <header className="mb-8 text-center">
-          <div className="mb-4 flex justify-end">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <header className="mb-12">
+          <div className="mb-6 flex justify-end">
             <Button
               onClick={toggleTheme}
               variant="outline"
               size="sm"
+              className="gap-2 shadow-sm transition-all hover:shadow-md"
               aria-label="Toggle theme"
             >
               {theme === 'light' ? (
                 <>
-                  <Moon className="mr-2 size-4" />
+                  <Moon className="size-4" />
                   Dark Mode
                 </>
               ) : (
                 <>
-                  <Sun className="mr-2 size-4" />
+                  <Sun className="size-4" />
                   Light Mode
                 </>
               )}
             </Button>
           </div>
-          <h1 className="mb-3 font-bold text-4xl text-balance tracking-tight sm:text-5xl">
-            Clarify
-          </h1>
-          <p className="mx-auto max-w-2xl text-balance text-lg leading-relaxed">
-            Feeling overwhelmed by complex texts? Clarify is designed for students who need focus. Paste any document to instantly break it down into simple summaries, clear key points, and instant definitions—making difficult concepts easy to grasp.
-          </p>
+          <div className="text-center">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2">
+              <div className="size-2 animate-pulse rounded-full bg-primary" />
+              <span className="font-medium text-primary text-sm">Powered by AI</span>
+            </div>
+            <h1 className="mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text font-bold text-5xl text-transparent tracking-tight sm:text-6xl">
+              Clarify
+            </h1>
+            <p className="mx-auto max-w-2xl text-balance text-muted-foreground text-xl leading-relaxed">
+              Transform complex texts into clear, simple summaries. Designed for students who need focus and clarity.
+            </p>
+          </div>
         </header>
 
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div className="flex flex-col gap-4">
-            <label htmlFor="input-text" className="font-semibold text-lg">
-              Your Text
-            </label>
+        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* Input Section */}
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <label htmlFor="input-text" className="font-semibold text-xl">
+                Your Text
+              </label>
+              {inputText && (
+                <Button
+                  onClick={() => {
+                    setInputText('');
+                    setSimplifiedContent(null);
+                    setTranslatedContent(null);
+                    setKeyTerms(null);
+                    handleStopAudio();
+                    setSelectedLanguage('en');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 text-muted-foreground hover:text-foreground"
+                >
+                  Clear
+                </Button>
+              )}
+            </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <input
                 type="file"
                 id="file-upload"
@@ -591,63 +618,70 @@ export default function Home() {
                 onClick={() => document.getElementById('file-upload')?.click()}
                 disabled={isUploadingFile}
                 variant="outline"
-                size="sm"
-                className="w-full"
+                size="default"
+                className="w-full gap-2 shadow-sm transition-all hover:shadow-md"
               >
                 {isUploadingFile ? (
                   <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="size-4 animate-spin" />
                     Processing File...
                   </>
                 ) : (
                   <>
-                    <Upload className="mr-2 size-4" />
+                    <Upload className="size-4" />
                     Upload PDF or DOCX
                   </>
                 )}
               </Button>
             </div>
             
-            <Textarea
-              id="input-text"
-              placeholder="Paste your text here or upload a PDF/DOCX file... (articles, textbooks, research papers, etc.)"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              className="min-h-[400px] resize-none font-mono text-base leading-relaxed"
-            />
-            <div className="flex items-center justify-between text-sm">
-              <span className={`${meetsMinimum ? 'text-muted-foreground' : 'text-destructive font-medium'}`}>
+            <Card className="overflow-hidden shadow-lg transition-shadow hover:shadow-xl">
+              <Textarea
+                id="input-text"
+                placeholder="Paste any text here... articles, textbooks, research papers, etc."
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                className="min-h-[450px] resize-none border-0 font-mono text-base leading-relaxed focus-visible:ring-0"
+                autoComplete="off"
+                data-form-type="other"
+              />
+            </Card>
+            
+            <div className="flex items-center justify-between rounded-lg bg-muted/50 px-4 py-3">
+              <span className={`font-medium text-sm ${meetsMinimum ? 'text-muted-foreground' : 'text-destructive'}`}>
                 {characterCount} / {MIN_TEXT_CHARACTERS} characters minimum
               </span>
               {!meetsMinimum && characterCount > 0 && (
                 <span className="text-destructive text-xs">
-                  Need {MIN_TEXT_CHARACTERS - characterCount} more characters
+                  +{MIN_TEXT_CHARACTERS - characterCount} more needed
                 </span>
               )}
             </div>
+            
             <Button
               onClick={handleSimplify}
               disabled={!meetsMinimum || isProcessing}
               size="lg"
-              className="w-full text-base"
+              className="w-full gap-2 bg-gradient-to-r from-primary to-primary/80 text-base shadow-lg transition-all hover:shadow-xl hover:scale-[1.02] disabled:scale-100"
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="mr-2 size-5 animate-spin" />
+                  <Loader2 className="size-5 animate-spin" />
                   Simplifying...
                 </>
               ) : (
                 <>
-                  <FileText className="mr-2 size-5" />
+                  <FileText className="size-5" />
                   Simplify Text
                 </>
               )}
             </Button>
           </div>
 
-          <div className="flex flex-col gap-4">
+          {/* Output Section */}
+          <div className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <label className="font-semibold text-lg">Simplified Content</label>
+              <label className="font-semibold text-xl">Simplified Content</label>
               <div className="flex flex-wrap items-center gap-2">
                 {simplifiedContent && (
                   <>
@@ -656,15 +690,16 @@ export default function Home() {
                       disabled={isExportingPDF}
                       variant="outline"
                       size="sm"
+                      className="gap-2 shadow-sm transition-all hover:shadow-md"
                     >
                       {isExportingPDF ? (
                         <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
+                          <Loader2 className="size-4 animate-spin" />
                           Exporting...
                         </>
                       ) : (
                         <>
-                          <Download className="mr-2 size-4" />
+                          <Download className="size-4" />
                           Export PDF
                         </>
                       )}
@@ -679,8 +714,8 @@ export default function Home() {
                       }}
                       disabled={isTranslating}
                     >
-                      <SelectTrigger className="w-[140px]">
-                        <Languages className="mr-2 size-4" />
+                      <SelectTrigger className="w-[150px] gap-2 shadow-sm">
+                        <Languages className="size-4" />
                         <SelectValue placeholder="Language" />
                       </SelectTrigger>
                       <SelectContent>
@@ -691,86 +726,93 @@ export default function Home() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {shouldShowPlayAudioButton && (
-                      <div className="flex gap-2">
-                        {!audioElement && !isPlaying ? (
-                          <Button
-                            onClick={handlePlayAudio}
-                            disabled={isLoadingAudio || isTranslating}
-                            variant="outline"
-                            size="sm"
-                          >
-                            {isLoadingAudio ? (
-                              <>
-                                <Loader2 className="mr-2 size-4 animate-spin" />
-                                Loading...
-                              </>
-                            ) : (
-                              <>
-                                <Play className="mr-2 size-4" />
-                                Play Audio
-                              </>
-                            )}
-                          </Button>
-                        ) : (
-                          <>
-                            <Button
-                              onClick={isPlaying ? handlePauseAudio : handlePlayAudio}
-                              disabled={isLoadingAudio}
-                              variant="outline"
-                              size="sm"
-                            >
-                              {isPlaying ? (
-                                <>
-                                  <Pause className="mr-2 size-4" />
-                                  Pause
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="mr-2 size-4" />
-                                  Resume
-                                </>
-                              )}
-                            </Button>
-                            <Button
-                              onClick={handleRestartAudio}
-                              disabled={isLoadingAudio}
-                              variant="outline"
-                              size="sm"
-                            >
-                              <RotateCcw className="size-4" />
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    )}
                   </>
                 )}
               </div>
             </div>
 
-            {shouldShowPlayAudioButton && audioElement && audioDuration > 0 && (
-              <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
-                <span className="text-muted-foreground text-xs">
-                  {formatTime(audioProgress)}
-                </span>
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                  <div 
-                    className="h-full bg-primary transition-all duration-200"
-                    style={{ width: `${(audioProgress / audioDuration) * 100}%` }}
-                  />
+            {shouldShowPlayAudioButton && simplifiedContent && (
+              <Card className="overflow-hidden shadow-lg">
+                <div className="flex flex-wrap items-center gap-2 bg-gradient-to-r from-primary/5 to-primary/10 p-4">
+                  {!audioElement && !isPlaying ? (
+                    <Button
+                      onClick={handlePlayAudio}
+                      disabled={isLoadingAudio || isTranslating}
+                      variant="default"
+                      size="sm"
+                      className="gap-2 bg-primary/90 hover:bg-primary"
+                    >
+                      {isLoadingAudio ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          <Play className="size-4" />
+                          Play Audio
+                        </>
+                      )}
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={isPlaying ? handlePauseAudio : handlePlayAudio}
+                        disabled={isLoadingAudio}
+                        variant="default"
+                        size="sm"
+                        className="gap-2 bg-primary/90 hover:bg-primary"
+                      >
+                        {isPlaying ? (
+                          <>
+                            <Pause className="size-4" />
+                            Pause
+                          </>
+                        ) : (
+                          <>
+                            <Play className="size-4" />
+                            Resume
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={handleRestartAudio}
+                        disabled={isLoadingAudio}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <RotateCcw className="size-4" />
+                        Restart
+                      </Button>
+                    </>
+                  )}
                 </div>
-                <span className="text-muted-foreground text-xs">
-                  {formatTime(audioDuration)}
-                </span>
-              </div>
+                
+                {audioElement && audioDuration > 0 && (
+                  <div className="flex items-center gap-3 px-4 pb-4">
+                    <span className="text-muted-foreground text-xs tabular-nums">
+                      {formatTime(audioProgress)}
+                    </span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div 
+                        className="h-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-200"
+                        style={{ width: `${(audioProgress / audioDuration) * 100}%` }}
+                      />
+                    </div>
+                    <span className="text-muted-foreground text-xs tabular-nums">
+                      {formatTime(audioDuration)}
+                    </span>
+                  </div>
+                )}
+              </Card>
             )}
 
             {isTranslating && (
-              <Card className="flex min-h-[400px] items-center justify-center p-8">
+              <Card className="flex min-h-[450px] items-center justify-center p-8 shadow-lg">
                 <div className="text-center">
-                  <Loader2 className="mx-auto mb-4 size-8 animate-spin text-primary" />
-                  <p className="text-muted-foreground leading-relaxed">
+                  <Loader2 className="mx-auto mb-4 size-12 animate-spin text-primary" />
+                  <p className="text-muted-foreground text-lg leading-relaxed">
                     Translating content...
                   </p>
                 </div>
@@ -780,57 +822,69 @@ export default function Home() {
             {!isTranslating && displayContent && (
               <div className="flex flex-col gap-4">
                 <Collapsible open={summaryOpen} onOpenChange={setSummaryOpen}>
-                  <Card className="p-6">
-                    <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <FileText className="size-5 text-primary" />
-                        <h3 className="font-semibold text-lg">Summary</h3>
+                  <Card className="overflow-hidden shadow-lg transition-all hover:shadow-xl">
+                    <CollapsibleTrigger className="flex w-full items-center justify-between bg-gradient-to-r from-primary/5 to-transparent p-6 transition-colors hover:from-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2">
+                          <FileText className="size-5 text-primary" />
+                        </div>
+                        <h3 className="font-semibold text-foreground text-lg">Summary</h3>
                       </div>
-                      <ChevronDown className={`size-5 text-muted-foreground transition-transform ${summaryOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`size-5 text-muted-foreground transition-transform duration-300 ${summaryOpen ? 'rotate-180' : ''}`} />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-4">
-                      <p className="text-base text-foreground leading-relaxed">
-                        {displayContent.summary}
-                      </p>
+                    <CollapsibleContent className="px-6 pb-6">
+                      <div className="pt-4">
+                        <p className="text-base text-foreground leading-relaxed">
+                          {displayContent.summary}
+                        </p>
+                      </div>
                     </CollapsibleContent>
                   </Card>
                 </Collapsible>
 
                 <Collapsible open={keyPointsOpen} onOpenChange={setKeyPointsOpen}>
-                  <Card className="p-6">
-                    <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <List className="size-5 text-primary" />
-                        <h3 className="font-semibold text-lg">Key Points</h3>
+                  <Card className="overflow-hidden shadow-lg transition-all hover:shadow-xl">
+                    <CollapsibleTrigger className="flex w-full items-center justify-between bg-gradient-to-r from-primary/5 to-transparent p-6 transition-colors hover:from-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2">
+                          <List className="size-5 text-primary" />
+                        </div>
+                        <h3 className="font-semibold text-foreground text-lg">Key Points</h3>
                       </div>
-                      <ChevronDown className={`size-5 text-muted-foreground transition-transform ${keyPointsOpen ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`size-5 text-muted-foreground transition-transform duration-300 ${keyPointsOpen ? 'rotate-180' : ''}`} />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-4">
-                      <ul className="space-y-2">
-                        {displayContent.bulletPoints.map((point, index) => (
-                          <li key={index} className="flex gap-3 text-base leading-relaxed">
-                            <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                            <span className="text-foreground">{point}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <CollapsibleContent className="px-6 pb-6">
+                      <div className="pt-4">
+                        <ul className="space-y-3">
+                          {displayContent.bulletPoints.map((point, index) => (
+                            <li key={index} className="flex gap-3 text-base leading-relaxed">
+                              <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                              <span className="text-foreground">{point}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </CollapsibleContent>
                   </Card>
                 </Collapsible>
 
                 <Collapsible open={eli5Open} onOpenChange={setEli5Open}>
-                  <Card className="p-6">
-                    <CollapsibleTrigger className="flex w-full items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Lightbulb className="size-5 text-primary" />
-                        <h3 className="font-semibold text-lg">Explain Like I&apos;m 5</h3>
+                  <Card className="overflow-hidden shadow-lg transition-all hover:shadow-xl">
+                    <CollapsibleTrigger className="flex w-full items-center justify-between bg-gradient-to-r from-primary/5 to-transparent p-6 transition-colors hover:from-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-primary/10 p-2">
+                          <Lightbulb className="size-5 text-primary" />
+                        </div>
+                        <h3 className="font-semibold text-foreground text-lg">Explain Like I&apos;m 5</h3>
                       </div>
-                      <ChevronDown className={`size-5 text-muted-foreground transition-transform ${eli5Open ? 'rotate-180' : ''}`} />
+                      <ChevronDown className={`size-5 text-muted-foreground transition-transform duration-300 ${eli5Open ? 'rotate-180' : ''}`} />
                     </CollapsibleTrigger>
-                    <CollapsibleContent className="pt-4">
-                      <p className="text-base text-foreground leading-relaxed">
-                        {displayContent.eli5}
-                      </p>
+                    <CollapsibleContent className="px-6 pb-6">
+                      <div className="pt-4">
+                        <p className="text-base text-foreground leading-relaxed">
+                          {displayContent.eli5}
+                        </p>
+                      </div>
                     </CollapsibleContent>
                   </Card>
                 </Collapsible>
@@ -840,16 +894,16 @@ export default function Home() {
                   disabled={isExplainingTerms}
                   variant="outline"
                   size="lg"
-                  className="w-full"
+                  className="w-full gap-2 shadow-sm transition-all hover:shadow-md"
                 >
                   {isExplainingTerms ? (
                     <>
-                      <Loader2 className="mr-2 size-5 animate-spin" />
+                      <Loader2 className="size-5 animate-spin" />
                       Finding Key Terms...
                     </>
                   ) : (
                     <>
-                      <BookOpen className="mr-2 size-5" />
+                      <BookOpen className="size-5" />
                       Explain Key Terms
                     </>
                   )}
@@ -857,26 +911,30 @@ export default function Home() {
 
                 {keyTerms && keyTerms.length > 0 && (
                   <Collapsible open={keyTermsOpen} onOpenChange={setKeyTermsOpen}>
-                    <Card className="p-6">
-                      <CollapsibleTrigger className="flex w-full items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="size-5 text-primary" />
-                          <h3 className="font-semibold text-lg">Key Terms Vocabulary</h3>
+                    <Card className="overflow-hidden shadow-lg transition-all hover:shadow-xl">
+                      <CollapsibleTrigger className="flex w-full items-center justify-between bg-gradient-to-r from-primary/5 to-transparent p-6 transition-colors hover:from-primary/10">
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-lg bg-primary/10 p-2">
+                            <BookOpen className="size-5 text-primary" />
+                          </div>
+                          <h3 className="font-semibold text-foreground text-lg">Key Terms Vocabulary</h3>
                         </div>
-                        <ChevronDown className={`size-5 text-muted-foreground transition-transform ${keyTermsOpen ? 'rotate-180' : ''}`} />
+                        <ChevronDown className={`size-5 text-muted-foreground transition-transform duration-300 ${keyTermsOpen ? 'rotate-180' : ''}`} />
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="pt-4">
-                        <div className="space-y-4">
-                          {keyTerms.map((item, index) => (
-                            <div key={index} className="border-l-4 border-primary pl-4">
-                              <h4 className="mb-1 font-semibold text-base text-foreground">
-                                {item.term}
-                              </h4>
-                              <p className="text-muted-foreground text-sm leading-relaxed">
-                                {item.definition}
-                              </p>
-                            </div>
-                          ))}
+                      <CollapsibleContent className="px-6 pb-6">
+                        <div className="pt-4">
+                          <div className="space-y-4">
+                            {keyTerms.map((item, index) => (
+                              <div key={index} className="rounded-lg border-l-4 border-primary bg-primary/5 p-4 transition-colors hover:bg-primary/10">
+                                <h4 className="mb-2 font-semibold text-base text-foreground">
+                                  {item.term}
+                                </h4>
+                                <p className="text-muted-foreground text-sm leading-relaxed">
+                                  {item.definition}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       </CollapsibleContent>
                     </Card>
@@ -886,10 +944,15 @@ export default function Home() {
             )}
 
             {!isTranslating && !displayContent && (
-              <Card className="flex min-h-[400px] items-center justify-center p-8">
-                <p className="text-center text-muted-foreground leading-relaxed">
-                  Your simplified content will appear here after clicking &quot;Simplify Text&quot;
-                </p>
+              <Card className="flex min-h-[450px] items-center justify-center p-8 shadow-lg">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 rounded-full bg-primary/10 p-6">
+                    <FileText className="size-12 text-primary" />
+                  </div>
+                  <p className="text-center text-muted-foreground text-lg leading-relaxed">
+                    Your simplified content will appear here after clicking &quot;Simplify Text&quot;
+                  </p>
+                </div>
               </Card>
             )}
           </div>

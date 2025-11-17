@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     const { object } = await generateObject({
       model: groq('meta-llama/llama-4-maverick-17b-128e-instruct'),
       schema: keyTermsSchema,
-      system: `You are an accessibility assistant helping students with learning differences like ADHD and dyslexia.
+      system: `You are an accessibility assistant helping students with learning differences like ADHD and dyslexia. You MUST ENSURE THAT THE CHARACTERS IS NO MORE THAN 1200 IN ENGLISH AND ARABIC.
 
 Your task is to identify the most important complex or specialized terms from educational text that a student might struggle with, and provide simple, clear definitions.
 
