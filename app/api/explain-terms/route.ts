@@ -15,13 +15,55 @@ const keyTermsSchema = z.object({
   ).min(3).max(10).describe('The most important complex terms that students might not understand'),
 });
 
+function validateContent(content: any): boolean {
+  if (!content || typeof content !== 'object') return false;
+  
+  if (typeof content.summary !== 'string' || content.summary.length > 10000) return false;
+  if (!Array.isArray(content.bulletPoints) || content.bulletPoints.length > 20) return false;
+  if (typeof content.eli5 !== 'string' || content.eli5.length > 10000) return false;
+  
+  return true;
+}
+
+function detectPromptInjection(text: string): boolean {
+  const suspiciousPatterns = [
+    /ignore\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /system\s*:\s*/i,
+    /assistant\s*:\s*/i,
+  ];
+  
+  return suspiciousPatterns.some(pattern => pattern.test(text));
+}
+
 export async function POST(req: Request) {
   try {
     const { content, originalText, language = 'en' } = await req.json();
 
-    if (!content) {
+    if (!content || typeof language !== 'string') {
       return Response.json(
-        { error: 'No content provided' },
+        { error: 'Valid content and language are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!validateContent(content)) {
+      return Response.json(
+        { error: 'Invalid content format' },
+        { status: 400 }
+      );
+    }
+
+    if (originalText && (typeof originalText !== 'string' || originalText.length > 150000)) {
+      return Response.json(
+        { error: 'Invalid original text' },
+        { status: 400 }
+      );
+    }
+
+    const textToCheck = `${content.summary} ${content.bulletPoints.join(' ')} ${content.eli5} ${originalText || ''}`;
+    if (detectPromptInjection(textToCheck)) {
+      return Response.json(
+        { error: 'Invalid input detected' },
         { status: 400 }
       );
     }

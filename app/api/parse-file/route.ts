@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { extractText } from 'unpdf';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_MIME_TYPES = [
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -9,6 +15,28 @@ export async function POST(request: NextRequest) {
     if (!file) {
       return NextResponse.json(
         { error: 'No file provided' },
+        { status: 400 }
+      );
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'File size exceeds 10MB limit' },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only PDF and DOCX files are allowed.' },
+        { status: 400 }
+      );
+    }
+
+    const fileName = file.name;
+    if (!fileName || fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
+      return NextResponse.json(
+        { error: 'Invalid file name' },
         { status: 400 }
       );
     }
@@ -75,13 +103,15 @@ function sanitizeText(text: string): string {
   }
   
   let cleaned = text
-    .replace(/<[^>]*>/g, '')
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/\s+/g, ' ')
-    .replace(/\0/g, '')
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove scripts
+    .replace(/javascript:/gi, '') // Remove javascript: protocol
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .replace(/\0/g, '') // Remove null bytes
+    .replace(/[\x00-\x1F\x7F-\x9F]/g, '') // Remove control characters
+    .replace(/\s+/g, ' ') // Normalize whitespace
     .trim();
 
-  // Limit text length to prevent abuse (100KB max)
   if (cleaned.length > 100000) {
     cleaned = cleaned.substring(0, 100000);
   }

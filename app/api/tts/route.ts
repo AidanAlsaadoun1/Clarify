@@ -1,11 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const MAX_TTS_LENGTH = 10000;
+const ALLOWED_LANGUAGES = ['en', 'ar'];
+
+function detectPromptInjection(text: string): boolean {
+  const suspiciousPatterns = [
+    /ignore\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /system\s*:\s*/i,
+    /assistant\s*:\s*/i,
+  ];
+  
+  return suspiciousPatterns.some(pattern => pattern.test(text));
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { text, language = 'en' } = await req.json();
 
-    if (!text) {
-      return NextResponse.json({ error: 'Text is required' }, { status: 400 });
+    if (!text || typeof text !== 'string') {
+      return NextResponse.json({ error: 'Valid text is required' }, { status: 400 });
+    }
+
+    if (text.length > MAX_TTS_LENGTH) {
+      return NextResponse.json(
+        { error: `Text exceeds maximum length of ${MAX_TTS_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
+    if (!ALLOWED_LANGUAGES.includes(language)) {
+      return NextResponse.json(
+        { error: 'Unsupported language for TTS' },
+        { status: 400 }
+      );
+    }
+
+    if (detectPromptInjection(text)) {
+      return NextResponse.json(
+        { error: 'Invalid input detected' },
+        { status: 400 }
+      );
     }
 
     const model = language === 'ar' ? 'playai-tts-arabic' : 'playai-tts';

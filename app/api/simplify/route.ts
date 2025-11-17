@@ -12,13 +12,57 @@ const simplifiedContentSchema = z.object({
   eli5: z.string().describe('An "Explain Like I\'m 5" version - simple language that anyone can understand'),
 });
 
+const MAX_TEXT_LENGTH = 150000; // 150KB max input
+const MIN_TEXT_LENGTH = 100; // Minimum 100 characters
+
+// Helper function to detect prompt injection attempts
+function detectPromptInjection(text: string): boolean {
+  const suspiciousPatterns = [
+    /ignore\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /disregard\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /forget\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /system\s*:\s*/i,
+    /assistant\s*:\s*/i,
+    /user\s*:\s*/i,
+    /<\|im_start\|>/i,
+    /<\|im_end\|>/i,
+    /###\s*instruction/i,
+    /you\s+are\s+now/i,
+    /pretend\s+to\s+be/i,
+    /act\s+as\s+a/i,
+  ];
+  
+  return suspiciousPatterns.some(pattern => pattern.test(text));
+}
+
 export async function POST(req: Request) {
   try {
     const { text } = await req.json();
 
-    if (!text || text.trim().length === 0) {
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
       return Response.json(
-        { error: 'No text provided' },
+        { error: 'Valid text is required' },
+        { status: 400 }
+      );
+    }
+
+    if (text.length < MIN_TEXT_LENGTH) {
+      return Response.json(
+        { error: `Text must be at least ${MIN_TEXT_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
+    if (text.length > MAX_TEXT_LENGTH) {
+      return Response.json(
+        { error: `Text exceeds maximum length of ${MAX_TEXT_LENGTH} characters` },
+        { status: 400 }
+      );
+    }
+
+    if (detectPromptInjection(text)) {
+      return Response.json(
+        { error: 'Invalid input detected. Please provide educational content only.' },
         { status: 400 }
       );
     }

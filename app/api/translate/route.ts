@@ -26,13 +26,64 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ru: 'Russian',
 };
 
+const MAX_CONTENT_LENGTH = 50000;
+
+function validateContent(content: any): boolean {
+  if (!content || typeof content !== 'object') return false;
+  
+  if (typeof content.summary !== 'string' || content.summary.length > 10000) return false;
+  if (!Array.isArray(content.bulletPoints) || content.bulletPoints.length > 20) return false;
+  if (typeof content.eli5 !== 'string' || content.eli5.length > 10000) return false;
+  
+  // Check each bullet point
+  for (const point of content.bulletPoints) {
+    if (typeof point !== 'string' || point.length > 1000) return false;
+  }
+  
+  return true;
+}
+
+function detectPromptInjection(text: string): boolean {
+  const suspiciousPatterns = [
+    /ignore\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /disregard\s+(previous|above|all)\s+(instructions?|prompts?|rules?)/i,
+    /system\s*:\s*/i,
+    /assistant\s*:\s*/i,
+    /<\|im_start\|>/i,
+  ];
+  
+  return suspiciousPatterns.some(pattern => pattern.test(text));
+}
+
 export async function POST(req: Request) {
   try {
     const { content, targetLanguage } = await req.json();
 
-    if (!content || !targetLanguage) {
+    if (!content || !targetLanguage || typeof targetLanguage !== 'string') {
       return Response.json(
         { error: 'Content and target language are required' },
+        { status: 400 }
+      );
+    }
+
+    if (!validateContent(content)) {
+      return Response.json(
+        { error: 'Invalid content format' },
+        { status: 400 }
+      );
+    }
+
+    if (!LANGUAGE_NAMES[targetLanguage]) {
+      return Response.json(
+        { error: 'Unsupported language' },
+        { status: 400 }
+      );
+    }
+
+    const contentText = `${content.summary} ${content.bulletPoints.join(' ')} ${content.eli5}`;
+    if (detectPromptInjection(contentText)) {
+      return Response.json(
+        { error: 'Invalid input detected' },
         { status: 400 }
       );
     }
