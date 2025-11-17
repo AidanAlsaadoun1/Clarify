@@ -70,6 +70,7 @@ export default function Home() {
   const [audioDuration, setAudioDuration] = useState(0);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const [summaryOpen, setSummaryOpen] = useState(true);
   const [keyPointsOpen, setKeyPointsOpen] = useState(true);
@@ -527,6 +528,16 @@ export default function Home() {
     }
   };
 
+  const handleClearAll = () => {
+    setInputText('');
+    setSimplifiedContent(null);
+    setTranslatedContent(null);
+    setKeyTerms(null);
+    setSelectedLanguage('en');
+    handleStopAudio();
+    setAudioElement(null);
+  };
+
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
@@ -541,11 +552,217 @@ export default function Home() {
   const characterCount = inputText.trim().length;
   const meetsMinimum = characterCount >= MIN_TEXT_CHARACTERS;
 
+  if (showHelp) {
+    return (
+      <main className="min-h-screen">
+        <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="mb-8 flex items-center justify-between">
+            <Button
+              onClick={() => setShowHelp(false)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              ← Back to App
+            </Button>
+            <Button
+              onClick={toggleTheme}
+              variant="outline"
+              size="sm"
+              className="gap-2 shadow-sm transition-all hover:shadow-md"
+            >
+              {theme === 'light' ? (
+                <>
+                  <Moon className="size-4" />
+                  Dark Mode
+                </>
+              ) : (
+                <>
+                  <Sun className="size-4" />
+                  Light Mode
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="text-center mb-12">
+            <h1 className="mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text font-bold text-5xl text-transparent tracking-tight">
+              How to Use Clarify
+            </h1>
+            <p className="mx-auto max-w-2xl text-balance text-muted-foreground text-xl">
+              A complete guide to all features and capabilities
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            <Card className="overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-primary/5 to-transparent p-6">
+                <h2 className="font-semibold text-2xl text-foreground">Getting Started</h2>
+              </div>
+              <div className="space-y-4 p-6">
+                <div>
+                  <h3 className="mb-2 font-semibold text-foreground text-lg">1. Add Your Text</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    You have two options to add text:
+                  </p>
+                  <ul className="ml-6 mt-2 list-disc space-y-1 text-muted-foreground">
+                    <li>Paste text directly into the text area (minimum 500 characters)</li>
+                    <li>Upload a PDF or DOCX file using the &quot;Upload PDF or DOCX&quot; button</li>
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="mb-2 font-semibold text-foreground text-lg">2. Simplify</h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Click the &quot;Simplify Text&quot; button to transform your content into an easy-to-understand format with:
+                  </p>
+                  <ul className="ml-6 mt-2 list-disc space-y-1 text-muted-foreground">
+                    <li><strong>Summary:</strong> A concise overview of the main ideas</li>
+                    <li><strong>Key Points:</strong> Important takeaways in bullet format</li>
+                    <li><strong>Explain Like I&apos;m 5:</strong> Super simple explanation anyone can understand</li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-primary/5 to-transparent p-6">
+                <h2 className="font-semibold text-2xl text-foreground">Core Features</h2>
+              </div>
+              <div className="space-y-4 p-6">
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-semibold text-foreground text-lg">
+                    <Languages className="size-5 text-primary" />
+                    Translation (12 Languages)
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    After simplifying, use the language dropdown to translate your content into Spanish, French, German, Italian, Portuguese, Chinese, Japanese, Korean, Arabic, Hindi, or Russian. The simplified content maintains its clarity in every language.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-semibold text-foreground text-lg">
+                    <Volume2 className="size-5 text-primary" />
+                    Audio Playback
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    For English and Arabic, click &quot;Play Audio&quot; to hear the simplified content read aloud using high-quality AI voices. Perfect for students with dyslexia or those who prefer audio learning. Controls include:
+                  </p>
+                  <ul className="ml-6 mt-2 list-disc space-y-1 text-muted-foreground">
+                    <li>Play/Pause to control playback</li>
+                    <li>Restart to begin from the start</li>
+                    <li>Progress bar showing current position and total duration</li>
+                  </ul>
+                  <p className="mt-2 text-muted-foreground text-sm">
+                    <em>Note: Audio supports up to 10,000 characters</em>
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-semibold text-foreground text-lg">
+                    <BookOpen className="size-5 text-primary" />
+                    Explain Key Terms
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Click &quot;Explain Key Terms&quot; to automatically identify complex vocabulary and provide simple definitions. This helps you understand difficult words without leaving the app, available in all 12 supported languages.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-semibold text-foreground text-lg">
+                    <Download className="size-5 text-primary" />
+                    Export to PDF
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    Save your simplified content as a PDF with a table of contents. The export includes all sections (Summary, Key Points, ELI5, and Key Terms if generated) in a clean, readable format perfect for studying or reference.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-primary/5 to-transparent p-6">
+                <h2 className="font-semibold text-2xl text-foreground">Tips for Best Results</h2>
+              </div>
+              <div className="space-y-3 p-6">
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <p className="font-medium text-foreground">📝 Text Length</p>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Minimum 500 characters required. Longer texts (up to several pages) work great and provide more comprehensive summaries.
+                  </p>
+                </div>
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <p className="font-medium text-foreground">🎯 Best Content Types</p>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Academic articles, textbook chapters, research papers, news articles, and complex explanations work best.
+                  </p>
+                </div>
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <p className="font-medium text-foreground">🔄 Collapsible Sections</p>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Click section headers to collapse/expand them. This reduces visual clutter and helps you focus on one section at a time.
+                  </p>
+                </div>
+                <div className="rounded-lg bg-primary/5 p-4">
+                  <p className="font-medium text-foreground">🌙 Dark Mode</p>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Toggle between light and dark themes for comfortable reading in any lighting condition. Your preference is saved automatically.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="overflow-hidden shadow-lg">
+              <div className="bg-gradient-to-r from-primary/5 to-transparent p-6">
+                <h2 className="font-semibold text-2xl text-foreground">Accessibility Features</h2>
+              </div>
+              <div className="p-6">
+                <p className="mb-4 text-muted-foreground leading-relaxed">
+                  Clarify is designed specifically for students with learning differences like ADHD and dyslexia:
+                </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex gap-3">
+                    <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                    <span><strong>Clean, focused design</strong> reduces cognitive load and visual distractions</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                    <span><strong>Text-to-speech</strong> helps with reading challenges and comprehension</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                    <span><strong>Clear structure</strong> with summaries and key points makes information digestible</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                    <span><strong>Generous spacing</strong> and readable fonts improve focus</span>
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="mt-2 size-2 shrink-0 rounded-full bg-primary" />
+                    <span><strong>Vocabulary support</strong> explains complex terms in simple language</span>
+                  </li>
+                </ul>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <header className="mb-12">
-          <div className="mb-6 flex justify-end">
+          <div className="mb-6 flex justify-end gap-2">
+            <Button
+              onClick={() => setShowHelp(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2 shadow-sm transition-all hover:shadow-md"
+            >
+              <BookOpen className="size-4" />
+              Help
+            </Button>
             <Button
               onClick={toggleTheme}
               variant="outline"
@@ -589,19 +806,13 @@ export default function Home() {
               </label>
               {inputText && (
                 <Button
-                  onClick={() => {
-                    setInputText('');
-                    setSimplifiedContent(null);
-                    setTranslatedContent(null);
-                    setKeyTerms(null);
-                    handleStopAudio();
-                    setSelectedLanguage('en');
-                  }}
-                  variant="ghost"
+                  onClick={handleClearAll}
+                  variant="destructive"
                   size="sm"
-                  className="gap-2 text-muted-foreground hover:text-foreground"
+                  className="gap-2 shadow-sm transition-all hover:shadow-md"
                 >
-                  Clear
+                  <RotateCcw className="size-4" />
+                  Clear All
                 </Button>
               )}
             </div>
